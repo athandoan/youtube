@@ -1,0 +1,9 @@
+go 1.25.5
+
+use (
+	./gateway-service
+	./metadata-service
+	./proto
+	./streaming-service
+	./upload-service
+)

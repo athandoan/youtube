@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - GoTube</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav">
+        <a href="index.html">Home</a> | <a href="upload.html">Upload</a>
+    </div>
+
+    <h1>Upload Video</h1>
+    <div class="form-group">
+        <label>Title:</label><br>
+        <input type="text" id="title" style="width: 100%;">
+    </div>
+    <div class="form-group">
+        <label>File:</label><br>
+        <input type="file" id="file">
+    </div>
+    <button onclick="uploadVideo()" id="upload-btn">Upload</button>
+    <p id="status"></p>
+
+    <script>
+        const UPLOAD_SERVICE = '/api';
+
+        async function uploadVideo() {
+            const title = document.getElementById('title').value;
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+            const btn = document.getElementById('upload-btn');
+            const status = document.getElementById('status');
+
+            if (!title || !file) {
+                alert("Please select a file and enter a title.");
+                return;
+            }
+
+            btn.disabled = true;
+            status.textContent = "Initializing...";
+
+            try {
+                // 1. Init Upload
+                const initRes = await fetch(`${UPLOAD_SERVICE}/upload/init`, {
+                    method: 'POST',
+                    body: JSON.stringify({ filename: file.name, title: title }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!initRes.ok) throw new Error("Init failed");
+                const initData = await initRes.json();
+                console.log("Init Response:", initData);
+
+                if (!initData.data || !initData.data.attributes) {
+                    throw new Error("Invalid server response: missing data or attributes");
+                }
+
+                const presignedUrl = initData.data.attributes.presigned_url;
+                const videoId = initData.data.id;
+
+                if (!presignedUrl) {
+                    throw new Error("Server returned empty or missing presigned_url");
+                }
+
+                // 2. Upload to MinIO (Presigned URL)
+                status.textContent = "Uploading to Storage...";
+                const uploadRes = await fetch(presignedUrl, {
+                    method: 'PUT',
+                    body: file
+                });
+                if (!uploadRes.ok) throw new Error("Storage upload failed");
+
+                // 3. Complete Upload
+                status.textContent = "Finalizing...";
+                const completeRes = await fetch(`${UPLOAD_SERVICE}/upload/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({ video_id: videoId }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!completeRes.ok) throw new Error("Completion failed");
+
+                status.textContent = "Upload Successful!";
+                status.textContent = "Upload Successful! Upload another?";
+                document.getElementById('title').value = '';
+                document.getElementById('file').value = '';
+                btn.disabled = false;
+
+            } catch (e) {
+                console.error(e);
+                status.textContent = "Error: " + e.message;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

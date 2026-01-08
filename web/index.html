@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoTube</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .video-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .video-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        #player-container {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        video {
+            width: 100%;
+        }
+
+        .nav {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav">
+        <a href="index.html">Home</a> | <a href="upload.html">Upload</a>
+    </div>
+
+    <div id="player-container">
+        <h2 id="playing-title"></h2>
+        <video id="video-player" controls></video>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search videos...">
+        <button onclick="searchVideos()">Search</button>
+    </div>
+
+    <div id="video-list"></div>
+
+    <script>
+        const METADATA_SERVICE = '/api';
+        const STREAMING_SERVICE = '/api/stream';
+
+        async function searchVideos() {
+            const query = document.getElementById('search-input').value;
+            try {
+                const res = await fetch(`${METADATA_SERVICE}/videos?q=${encodeURIComponent(query)}`);
+                const body = await res.json();
+                renderList(body.data);
+            } catch (e) {
+                console.error(e);
+                alert("Error fetching videos");
+            }
+        }
+
+        function renderList(videos) {
+            const list = document.getElementById('video-list');
+            list.innerHTML = '';
+            if (!videos || videos.length === 0) {
+                list.innerHTML = '<p>No videos found.</p>';
+                return;
+            }
+            videos.forEach(v => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                div.innerHTML = `<strong>${v.attributes.title}</strong> <small>(${v.attributes.created_at})</small>`;
+                div.onclick = () => playVideo(v);
+                list.appendChild(div);
+            });
+        }
+
+        async function playVideo(video) {
+            try {
+                // Streaming service now returns JSONAPI with the URL
+                const res = await fetch(`${STREAMING_SERVICE}/videos/${video.id}`);
+                const body = await res.json();
+
+                if (!body.data || !body.data.attributes || !body.data.attributes.url) {
+                    throw new Error("Invalid response from streaming service");
+                }
+
+                const url = body.data.attributes.url;
+                const player = document.getElementById('video-player');
+                const container = document.getElementById('player-container');
+                const title = document.getElementById('playing-title');
+
+                title.textContent = video.attributes.title;
+                player.src = url;
+                container.style.display = 'block';
+                player.play();
+            } catch (e) {
+                console.error("Error playing video:", e);
+                alert("Failed to play video");
+            }
+        }
+
+        // Initial load
+        searchVideos();
+    </script>
+</body>
+
+</html>

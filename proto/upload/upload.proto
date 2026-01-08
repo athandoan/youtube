@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package upload;
+
+option go_package = "github.com/athandoan/youtube/proto/upload";
+
+service UploadService {
+  rpc InitUpload(InitUploadRequest) returns (InitUploadResponse);
+  rpc CompleteUpload(CompleteUploadRequest) returns (CompleteUploadResponse);
+}
+
+message InitUploadRequest {
+  string filename = 1;
+  string title = 2;
+}
+
+message InitUploadResponse {
+  string video_id = 1;
+  string presigned_url = 2;
+}
+
+message CompleteUploadRequest {
+  string video_id = 1;
+}
+
+message CompleteUploadResponse {
+  string status = 1;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package streaming;
+
+option go_package = "github.com/athandoan/youtube/proto/streaming";
+
+service StreamingService {
+  rpc GetStreamURL(GetStreamURLRequest) returns (GetStreamURLResponse);
+}
+
+message GetStreamURLRequest {
+  string video_id = 1;
+}
+
+message GetStreamURLResponse {
+  string url = 1;
+}

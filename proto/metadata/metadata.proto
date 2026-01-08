@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package metadata;
+
+option go_package = "github.com/athandoan/youtube/proto/metadata";
+
+import "proto/common/common.proto";
+
+service MetadataService {
+  rpc GetVideo(GetVideoRequest) returns (common.Video);
+  rpc ListVideos(ListVideosRequest) returns (ListVideosResponse);
+  rpc CreateVideo(CreateVideoRequest) returns (CreateVideoResponse);
+  rpc UpdateVideoStatus(UpdateVideoStatusRequest) returns (UpdateVideoStatusResponse);
+}
+
+message GetVideoRequest {
+  string id = 1;
+}
+
+message ListVideosRequest {
+  string query = 1;
+}
+
+message ListVideosResponse {
+  repeated common.Video videos = 1;
+}
+
+message CreateVideoRequest {
+  string title = 1;
+  string bucket = 2;
+  string object_key = 3;
+}
+
+message CreateVideoResponse {
+  string id = 1;
+}
+
+message UpdateVideoStatusRequest {
+  string id = 1;
+  string status = 2;
+}
+
+message UpdateVideoStatusResponse {
+  string status = 1;
+}

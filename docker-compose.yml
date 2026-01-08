@@ -1,0 +1,115 @@
+services:
+  garage:
+    image: dxflrs/garage@sha256:15b40e0dddd2e611aa746ff6f7c3bfe9f22735e4a2cc29e0abd89c268e9b79d9 # v2.0.0
+    ports:
+      - "3900:3900" # S3 API
+      - "3901:3901" # RPC
+      - "3902:3902" # S3 Web
+      - "3903:3903" # Admin API
+    volumes:
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+      - ./garage.toml:/etc/garage.toml
+    networks:
+      - youtube-network
+
+  garage-webui:
+    image: khairul169/garage-webui@sha256:17c793551873155065bf9a022dabcde874de808a1f26e648d4b82e168806439c
+    ports:
+      - "3909:3909"
+    environment:
+      API_BASE_URL: http://garage:3903
+      S3_ENDPOINT_URL: http://garage:3900
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+    depends_on:
+      - garage
+    networks:
+      - youtube-network
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      METADATA_SERVICE_ADDR: metadata-service:50051
+      UPLOAD_SERVICE_ADDR: upload-service:50052
+      STREAMING_SERVICE_ADDR: streaming-service:50053
+    depends_on:
+      - metadata-service
+      - upload-service
+      - streaming-service
+    networks:
+      - youtube-network
+
+  upload-service:
+    build:
+      context: .
+      dockerfile: upload-service/Dockerfile
+    environment:
+      MINIO_ENDPOINT: garage:3900
+      MINIO_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${GARAGE_SECRET_KEY}
+      MINIO_USE_SSL: "false"
+      MINIO_BUCKET: videos
+      S3_EXTERNAL_ENDPOINT: localhost:3900
+      METADATA_SERVICE_ADDR: metadata-service:50051
+      GRPC_PORT: 50052
+    depends_on:
+      metadata-service:
+        condition: service_started
+    networks:
+      - youtube-network
+
+  streaming-service:
+    build:
+      context: .
+      dockerfile: streaming-service/Dockerfile
+    environment:
+      MINIO_ENDPOINT: garage:3900
+      MINIO_ACCESS_KEY: ${GARAGE_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${GARAGE_SECRET_KEY}
+      MINIO_USE_SSL: "false"
+      MINIO_BUCKET: videos
+      S3_EXTERNAL_ENDPOINT: localhost:3900
+      METADATA_SERVICE_ADDR: metadata-service:50051
+      GRPC_PORT: 50053
+    depends_on:
+      metadata-service:
+        condition: service_started
+    networks:
+      - youtube-network
+
+  metadata-service:
+    build:
+      context: .
+      dockerfile: metadata-service/Dockerfile
+    environment:
+      SQLITE_DB_PATH: /data/videos.db
+      GRPC_PORT: 50051
+    volumes:
+      - ./data:/data
+    networks:
+      - youtube-network
+
+  web:
+    build: ./web
+    ports:
+      - "8080:80"
+    depends_on:
+      - gateway-service
+      - streaming-service
+    networks:
+      - youtube-network
+
+networks:
+  youtube-network:
+    driver: bridge
+
+volumes:
+  garage_meta:
+  garage_data:
+
+

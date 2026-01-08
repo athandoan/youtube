@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/athandoan/youtube/proto/common";
+
+message Video {
+  string id = 1;
+  string title = 2;
+  string status = 3; // pending, ready, failed
+  string created_at = 4;
+  string bucket_name = 5;
+  string object_key = 6;
+}
