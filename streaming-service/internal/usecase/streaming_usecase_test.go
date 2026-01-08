@@ -136,7 +136,9 @@ func TestStreamingUsecase_GetStreamURL_ContextPropagation(t *testing.T) {
 	mockStorage := mocks.NewMockStorageService(ctrl)
 	mockMetadata := mocks.NewMockMetadataService(ctrl)
 
-	ctx := context.WithValue(context.Background(), "test-key", "test-value")
+	type ctxKey string
+	const testKey ctxKey = "test-key"
+	ctx := context.WithValue(context.Background(), testKey, "test-value")
 
 	// Verify context is propagated correctly
 	mockMetadata.EXPECT().
