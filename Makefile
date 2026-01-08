@@ -2,9 +2,41 @@ SERVICES := gateway-service metadata-service upload-service streaming-service
 PROTO_DIR := proto
 export PATH := $(shell go env GOPATH)/bin:$(PATH)
 
-.PHONY: all lint gen-proto setup-garage tidy build up down logs clean
+.PHONY: all lint gen-proto setup-garage tidy build up down logs clean test test-coverage generate-mocks
 
 all: lint build
+
+# ----------------------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------------------
+test:
+	@echo "Running tests..."
+	@for service in $(SERVICES); do \
+		echo "Testing $$service..."; \
+		(cd $$service && go test -v ./...) || exit 1; \
+	done
+	@echo "✅ All tests passed."
+
+test-coverage:
+	@echo "Running tests with coverage..."
+	@for service in $(SERVICES); do \
+		echo "Testing $$service with coverage..."; \
+		(cd $$service && go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out) || exit 1; \
+	done
+	@echo "✅ Coverage reports generated."
+
+# ----------------------------------------------------------------------------
+# Mock Generation
+# ----------------------------------------------------------------------------
+generate-mocks:
+	@echo "Checking for mockgen..."
+	@command -v mockgen >/dev/null 2>&1 || { echo "Installing mockgen..."; go install go.uber.org/mock/mockgen@latest; }
+	@echo "Generating mocks..."
+	@for service in $(SERVICES); do \
+		echo "Generating mocks for $$service..."; \
+		(cd $$service && go generate ./...) || exit 1; \
+	done
+	@echo "✅ Mocks generated."
 
 # ----------------------------------------------------------------------------
 # Code Quality & Dependencies

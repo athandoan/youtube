@@ -1,5 +1,7 @@
 package domain
 
+//go:generate mockgen -source=video.go -destination=../mocks/mock_repository.go -package=mocks
+
 import "time"
 
 type Video struct {

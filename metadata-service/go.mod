@@ -6,6 +6,7 @@ require (
 	github.com/athandoan/youtube/proto v0.0.0-00010101000000-000000000000
 	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.22
+	go.uber.org/mock v0.6.0
 	google.golang.org/grpc v1.78.0
 )
 

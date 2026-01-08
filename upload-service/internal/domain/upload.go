@@ -1,5 +1,7 @@
 package domain
 
+//go:generate mockgen -source=upload.go -destination=../mocks/mock_services.go -package=mocks
+
 import (
 	"context"
 	"net/url"
