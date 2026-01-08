@@ -7,6 +7,7 @@ replace github.com/athandoan/youtube/proto => ../proto
 require (
 	github.com/athandoan/youtube/proto v0.0.0-00010101000000-000000000000
 	github.com/google/jsonapi v1.0.0
+	go.uber.org/mock v0.6.0
 	google.golang.org/grpc v1.78.0
 )
 
