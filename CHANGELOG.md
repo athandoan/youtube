@@ -1,15 +1,12 @@
-# Changelog
+## 0.1.0 (2026-01-08)
 
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Features
 
-## [Unreleased]
+* initial project ([3372a3e](https://github.com/athandoan/youtube/commit/3372a3e852b20d4b72e3002907e758620a4eadd3))
 
-### Added
-- Initial microservices architecture with Gateway, Metadata, Upload, and Streaming services
-- gRPC communication between services
-- SQLite database for metadata storage
-- S3-compatible storage (Garage) for video files
-- Docker Compose setup for local development
+
+### Bug Fixes
+
+* **ci:** install golangci-lint via go install for Go 1.25 compatibility ([b20c5a3](https://github.com/athandoan/youtube/commit/b20c5a32dec5f3418703c2aced8791f7a3d67d73))
+
