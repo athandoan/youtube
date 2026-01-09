@@ -12,7 +12,6 @@ permissions:
 jobs:
   # Check PR title follows conventional commit format
   pr-convention:
-    name: PR Convention Check
     runs-on: ubuntu-latest
     steps:
       - name: Check PR Title
@@ -20,7 +19,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Configure which types are allowed (standard conventional commit types)
           types: |
             feat
             fix
@@ -33,25 +31,46 @@ jobs:
             ci
             chore
             revert
-          # Require a scope (optional - remove if not needed)
           requireScope: false
-          # Disallow scopes (optional)
           disallowScopes: |
             release
-          # Subject pattern validation
           subjectPattern: ^[a-z].+$
           subjectPatternError: |
             The subject "{subject}" must start with a lowercase letter.
 
+  # Detect which services have changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gateway-service:
+              - 'gateway-service/**'
+              - 'proto/**'
+            metadata-service:
+              - 'metadata-service/**'
+              - 'proto/**'
+            upload-service:
+              - 'upload-service/**'
+              - 'proto/**'
+            streaming-service:
+              - 'streaming-service/**'
+              - 'proto/**'
+
   lint:
-    name: Lint
+    needs: changes
+    if: ${{ needs.changes.outputs.services != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [gateway-service, metadata-service, upload-service, streaming-service]
+        service: ${{ fromJson(needs.changes.outputs.services) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -68,14 +87,14 @@ jobs:
           args: --timeout=5m
 
   test:
-    name: Unit Tests
+    needs: changes
+    if: ${{ needs.changes.outputs.services != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [gateway-service, metadata-service, upload-service, streaming-service]
+        service: ${{ fromJson(needs.changes.outputs.services) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -89,15 +108,14 @@ jobs:
         run: go test -v -race -coverprofile=coverage.out ./...
 
   build:
-    name: Build Check
+    needs: [changes, lint, test]
+    if: ${{ needs.changes.outputs.services != '[]' }}
     runs-on: ubuntu-latest
-    needs: [lint, test]
     strategy:
       matrix:
-        service: [gateway-service, metadata-service, upload-service, streaming-service]
+        service: ${{ fromJson(needs.changes.outputs.services) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Set up Go
         uses: actions/setup-go@v6

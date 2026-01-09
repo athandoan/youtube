@@ -29,8 +29,8 @@ test-coverage:
 # Mock Generation
 # ----------------------------------------------------------------------------
 generate-mocks:
-	@echo "Checking for mockgen..."
-	@command -v mockgen >/dev/null 2>&1 || { echo "Installing mockgen..."; go install go.uber.org/mock/mockgen@latest; }
+	@echo "Ensuring latest mockgen..."
+	@go install go.uber.org/mock/mockgen@latest
 	@echo "Generating mocks..."
 	@for service in $(SERVICES); do \
 		echo "Generating mocks for $$service..."; \
@@ -42,8 +42,8 @@ generate-mocks:
 # Code Quality & Dependencies
 # ----------------------------------------------------------------------------
 lint:
-	@echo "Checking for golangci-lint..."
-	@command -v golangci-lint >/dev/null 2>&1 || { echo "Installing golangci-lint..."; go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest; }
+	@echo "Ensuring latest golangci-lint..."
+	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	@echo "Linting services..."
 	@for service in $(SERVICES); do \
 		if [ -d "$$service" ]; then \
@@ -68,9 +68,10 @@ tidy:
 gen-proto:
 	@echo "Checking for protoc..."
 	@command -v protoc >/dev/null 2>&1 || { echo "❌ protoc not installed. Please install protobuf-compiler."; exit 1; }
-	@echo "Checking for protoc-gen-go..."
-	@command -v protoc-gen-go >/dev/null 2>&1 || go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	@command -v protoc-gen-go-grpc >/dev/null 2>&1 || go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@echo "Ensuring latest protoc-gen-go..."
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@echo "Ensuring latest protoc-gen-go-grpc..."
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@echo "Initializing proto module if needed..."
 	@[ -f $(PROTO_DIR)/go.mod ] || (cd $(PROTO_DIR) && go mod init github.com/athandoan/youtube/proto)
 	@echo "Generating Go code from protos..."
