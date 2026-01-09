@@ -6,13 +6,12 @@ WORKDIR /app
 # Copy proto files
 COPY proto ../proto
 
-COPY gateway-service/go.mod ./
+COPY gateway-service/go.mod gateway-service/go.sum ./
 
 RUN go mod edit -replace github.com/athandoan/youtube/proto=../proto
+RUN go mod download
 
 COPY gateway-service/ .
-
-RUN go mod tidy
 
 RUN go build -o gateway-service ./cmd/server
 

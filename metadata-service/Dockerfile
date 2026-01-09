@@ -4,11 +4,10 @@ FROM golang@sha256:ac09a5f469f307e5da71e766b0bd59c9c49ea460a528cc3e6686513d64a6f
 WORKDIR /app
 
 COPY proto ../proto
-COPY metadata-service/go.mod ./
-# No go.sum yet, run tidy
+COPY metadata-service/go.mod metadata-service/go.sum ./
 RUN go mod edit -replace github.com/athandoan/youtube/proto=../proto
+RUN go mod download
 COPY metadata-service/ .
-RUN go mod tidy
 
 # Install CGO dependencies
 RUN apk add --no-cache gcc musl-dev
