@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR Title
-        uses: amannn/action-semantic-pull-request@v5
+        uses: amannn/action-semantic-pull-request@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -46,105 +46,71 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway-service, metadata-service, upload-service, streaming-service]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.25'
           cache: true
-          cache-dependency-path: |
-            gateway-service/go.sum
-            metadata-service/go.sum
-            upload-service/go.sum
-            streaming-service/go.sum
+          cache-dependency-path: ${{ matrix.service }}/go.sum
 
-      - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
-      - name: Lint gateway-service
-        working-directory: gateway-service
-        run: golangci-lint run --timeout=5m
-
-      - name: Lint metadata-service
-        working-directory: metadata-service
-        run: golangci-lint run --timeout=5m
-
-      - name: Lint upload-service
-        working-directory: upload-service
-        run: golangci-lint run --timeout=5m
-
-      - name: Lint streaming-service
-        working-directory: streaming-service
-        run: golangci-lint run --timeout=5m
+      - name: Lint ${{ matrix.service }}
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+          working-directory: ${{ matrix.service }}
+          args: --timeout=5m
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway-service, metadata-service, upload-service, streaming-service]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.25'
           cache: true
-          cache-dependency-path: |
-            gateway-service/go.sum
-            metadata-service/go.sum
-            upload-service/go.sum
-            streaming-service/go.sum
+          cache-dependency-path: ${{ matrix.service }}/go.sum
 
-      - name: Test gateway-service
-        working-directory: gateway-service
-        run: go test -v -race -coverprofile=coverage.out ./...
-
-      - name: Test metadata-service
-        working-directory: metadata-service
-        run: go test -v -race -coverprofile=coverage.out ./...
-
-      - name: Test upload-service
-        working-directory: upload-service
-        run: go test -v -race -coverprofile=coverage.out ./...
-
-      - name: Test streaming-service
-        working-directory: streaming-service
+      - name: Test ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
         run: go test -v -race -coverprofile=coverage.out ./...
 
   build:
     name: Build Check
     runs-on: ubuntu-latest
     needs: [lint, test]
+    strategy:
+      matrix:
+        service: [gateway-service, metadata-service, upload-service, streaming-service]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.25'
           cache: true
-          cache-dependency-path: |
-            gateway-service/go.sum
-            metadata-service/go.sum
-            upload-service/go.sum
-            streaming-service/go.sum
+          cache-dependency-path: ${{ matrix.service }}/go.sum
 
-      - name: Build gateway-service
-        working-directory: gateway-service
-        run: go build -v ./...
-
-      - name: Build metadata-service
-        working-directory: metadata-service
-        run: CGO_ENABLED=1 go build -tags "fts5" -v ./...
-
-      - name: Build upload-service
-        working-directory: upload-service
-        run: go build -v ./...
-
-      - name: Build streaming-service
-        working-directory: streaming-service
-        run: go build -v ./...
+      - name: Build ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: |
+          if [ "${{ matrix.service }}" == "metadata-service" ]; then
+            CGO_ENABLED=1 go build -tags "fts5" -v ./...
+          else
+            go build -v ./...
+          fi
