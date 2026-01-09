@@ -2,7 +2,10 @@ package domain
 
 //go:generate mockgen -source=video.go -destination=../mocks/mock_repository.go -package=mocks
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Video struct {
 	ID          string
@@ -15,15 +18,15 @@ type Video struct {
 }
 
 type VideoRepository interface {
-	Create(video *Video) error
-	Get(id string) (*Video, error)
-	List(query string) ([]*Video, error)
-	UpdateStatus(id string, status string) error
+	Create(ctx context.Context, video *Video) error
+	Get(ctx context.Context, id string) (*Video, error)
+	List(ctx context.Context, query string) ([]*Video, error)
+	UpdateStatus(ctx context.Context, id string, status string) error
 }
 
 type VideoUsecase interface {
-	Create(title, bucket, objectKey string) (string, error)
-	Get(id string) (*Video, error)
-	List(query string) ([]*Video, error)
-	UpdateStatus(id string, status string) error
+	Create(ctx context.Context, title, bucket, objectKey string) (string, error)
+	Get(ctx context.Context, id string) (*Video, error)
+	List(ctx context.Context, query string) ([]*Video, error)
+	UpdateStatus(ctx context.Context, id string, status string) error
 }

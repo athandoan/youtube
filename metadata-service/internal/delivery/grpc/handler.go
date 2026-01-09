@@ -18,7 +18,7 @@ func NewMetadataHandler(u domain.VideoUsecase) *MetadataHandler {
 }
 
 func (h *MetadataHandler) CreateVideo(ctx context.Context, req *pb.CreateVideoRequest) (*pb.CreateVideoResponse, error) {
-	id, err := h.Usecase.Create(req.Title, req.Bucket, req.ObjectKey)
+	id, err := h.Usecase.Create(ctx, req.Title, req.Bucket, req.ObjectKey)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (h *MetadataHandler) CreateVideo(ctx context.Context, req *pb.CreateVideoRe
 }
 
 func (h *MetadataHandler) ListVideos(ctx context.Context, req *pb.ListVideosRequest) (*pb.ListVideosResponse, error) {
-	videos, err := h.Usecase.List(req.Query)
+	videos, err := h.Usecase.List(ctx, req.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (h *MetadataHandler) ListVideos(ctx context.Context, req *pb.ListVideosRequ
 }
 
 func (h *MetadataHandler) UpdateVideoStatus(ctx context.Context, req *pb.UpdateVideoStatusRequest) (*pb.UpdateVideoStatusResponse, error) {
-	err := h.Usecase.UpdateStatus(req.Id, req.Status)
+	err := h.Usecase.UpdateStatus(ctx, req.Id, req.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (h *MetadataHandler) UpdateVideoStatus(ctx context.Context, req *pb.UpdateV
 }
 
 func (h *MetadataHandler) GetVideo(ctx context.Context, req *pb.GetVideoRequest) (*common.Video, error) {
-	v, err := h.Usecase.Get(req.Id)
+	v, err := h.Usecase.Get(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}

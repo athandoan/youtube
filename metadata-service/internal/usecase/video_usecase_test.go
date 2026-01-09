@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -26,8 +27,8 @@ func TestVideoUsecase_Create(t *testing.T) {
 			objectKey: "uuid/test.mp4",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					Create(gomock.Any()).
-					DoAndReturn(func(v *domain.Video) error {
+					Create(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(ctx context.Context, v *domain.Video) error {
 						if v.Title != "Test Video" {
 							t.Errorf("expected title 'Test Video', got %s", v.Title)
 						}
@@ -53,7 +54,7 @@ func TestVideoUsecase_Create(t *testing.T) {
 			objectKey: "uuid/test.mp4",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					Create(gomock.Any()).
+					Create(gomock.Any(), gomock.Any()).
 					Return(errors.New("database error"))
 			},
 			wantErr: true,
@@ -69,7 +70,7 @@ func TestVideoUsecase_Create(t *testing.T) {
 			tt.setupMock(mockRepo)
 
 			uc := NewVideoUsecase(mockRepo)
-			id, err := uc.Create(tt.title, tt.bucket, tt.objectKey)
+			id, err := uc.Create(context.Background(), tt.title, tt.bucket, tt.objectKey)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
@@ -96,7 +97,7 @@ func TestVideoUsecase_Get(t *testing.T) {
 			id:   "video-123",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					Get("video-123").
+					Get(gomock.Any(), "video-123").
 					Return(&domain.Video{
 						ID:         "video-123",
 						Title:      "Test Video",
@@ -119,7 +120,7 @@ func TestVideoUsecase_Get(t *testing.T) {
 			id:   "nonexistent-id",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					Get("nonexistent-id").
+					Get(gomock.Any(), "nonexistent-id").
 					Return(nil, errors.New("video not found"))
 			},
 			want:    nil,
@@ -136,7 +137,7 @@ func TestVideoUsecase_Get(t *testing.T) {
 			tt.setupMock(mockRepo)
 
 			uc := NewVideoUsecase(mockRepo)
-			got, err := uc.Get(tt.id)
+			got, err := uc.Get(context.Background(), tt.id)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Get() error = %v, wantErr %v", err, tt.wantErr)
@@ -168,7 +169,7 @@ func TestVideoUsecase_List(t *testing.T) {
 			query: "",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					List("").
+					List(gomock.Any(), "").
 					Return([]*domain.Video{
 						{ID: "video-1", Title: "Video 1"},
 						{ID: "video-2", Title: "Video 2"},
@@ -182,7 +183,7 @@ func TestVideoUsecase_List(t *testing.T) {
 			query: "golang",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					List("golang").
+					List(gomock.Any(), "golang").
 					Return([]*domain.Video{
 						{ID: "video-1", Title: "Golang Tutorial"},
 					}, nil)
@@ -195,7 +196,7 @@ func TestVideoUsecase_List(t *testing.T) {
 			query: "nonexistent",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					List("nonexistent").
+					List(gomock.Any(), "nonexistent").
 					Return([]*domain.Video{}, nil)
 			},
 			wantCount: 0,
@@ -206,7 +207,7 @@ func TestVideoUsecase_List(t *testing.T) {
 			query: "",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					List("").
+					List(gomock.Any(), "").
 					Return(nil, errors.New("database error"))
 			},
 			wantErr: true,
@@ -222,7 +223,7 @@ func TestVideoUsecase_List(t *testing.T) {
 			tt.setupMock(mockRepo)
 
 			uc := NewVideoUsecase(mockRepo)
-			got, err := uc.List(tt.query)
+			got, err := uc.List(context.Background(), tt.query)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
@@ -250,7 +251,7 @@ func TestVideoUsecase_UpdateStatus(t *testing.T) {
 			status: "ready",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					UpdateStatus("video-123", "ready").
+					UpdateStatus(gomock.Any(), "video-123", "ready").
 					Return(nil)
 			},
 			wantErr: false,
@@ -261,7 +262,7 @@ func TestVideoUsecase_UpdateStatus(t *testing.T) {
 			status: "error",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					UpdateStatus("video-123", "error").
+					UpdateStatus(gomock.Any(), "video-123", "error").
 					Return(nil)
 			},
 			wantErr: false,
@@ -272,7 +273,7 @@ func TestVideoUsecase_UpdateStatus(t *testing.T) {
 			status: "ready",
 			setupMock: func(m *mocks.MockVideoRepository) {
 				m.EXPECT().
-					UpdateStatus("nonexistent-id", "ready").
+					UpdateStatus(gomock.Any(), "nonexistent-id", "ready").
 					Return(errors.New("video not found"))
 			},
 			wantErr: true,
@@ -288,7 +289,7 @@ func TestVideoUsecase_UpdateStatus(t *testing.T) {
 			tt.setupMock(mockRepo)
 
 			uc := NewVideoUsecase(mockRepo)
-			err := uc.UpdateStatus(tt.id, tt.status)
+			err := uc.UpdateStatus(context.Background(), tt.id, tt.status)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UpdateStatus() error = %v, wantErr %v", err, tt.wantErr)
