@@ -77,7 +77,7 @@ func (r *sqliteRepo) List(ctx context.Context, query string) ([]*domain.Video, e
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var videos []*domain.Video
 	for rows.Next() {
