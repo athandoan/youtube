@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/athandoan/youtube/metadata-service/internal/domain"
@@ -41,61 +42,61 @@ func (m *MockVideoRepository) EXPECT() *MockVideoRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockVideoRepository) Create(video *domain.Video) error {
+func (m *MockVideoRepository) Create(ctx context.Context, video *domain.Video) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", video)
+	ret := m.ctrl.Call(m, "Create", ctx, video)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockVideoRepositoryMockRecorder) Create(video any) *gomock.Call {
+func (mr *MockVideoRepositoryMockRecorder) Create(ctx, video any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoRepository)(nil).Create), video)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoRepository)(nil).Create), ctx, video)
 }
 
 // Get mocks base method.
-func (m *MockVideoRepository) Get(id string) (*domain.Video, error) {
+func (m *MockVideoRepository) Get(ctx context.Context, id string) (*domain.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", id)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
 	ret0, _ := ret[0].(*domain.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockVideoRepositoryMockRecorder) Get(id any) *gomock.Call {
+func (mr *MockVideoRepositoryMockRecorder) Get(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockVideoRepository)(nil).Get), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockVideoRepository)(nil).Get), ctx, id)
 }
 
 // List mocks base method.
-func (m *MockVideoRepository) List(query string) ([]*domain.Video, error) {
+func (m *MockVideoRepository) List(ctx context.Context, query string) ([]*domain.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", query)
+	ret := m.ctrl.Call(m, "List", ctx, query)
 	ret0, _ := ret[0].([]*domain.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockVideoRepositoryMockRecorder) List(query any) *gomock.Call {
+func (mr *MockVideoRepositoryMockRecorder) List(ctx, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockVideoRepository)(nil).List), query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockVideoRepository)(nil).List), ctx, query)
 }
 
 // UpdateStatus mocks base method.
-func (m *MockVideoRepository) UpdateStatus(id, status string) error {
+func (m *MockVideoRepository) UpdateStatus(ctx context.Context, id, status string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatus", id, status)
+	ret := m.ctrl.Call(m, "UpdateStatus", ctx, id, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStatus indicates an expected call of UpdateStatus.
-func (mr *MockVideoRepositoryMockRecorder) UpdateStatus(id, status any) *gomock.Call {
+func (mr *MockVideoRepositoryMockRecorder) UpdateStatus(ctx, id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockVideoRepository)(nil).UpdateStatus), id, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockVideoRepository)(nil).UpdateStatus), ctx, id, status)
 }
 
 // MockVideoUsecase is a mock of VideoUsecase interface.
@@ -123,60 +124,60 @@ func (m *MockVideoUsecase) EXPECT() *MockVideoUsecaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockVideoUsecase) Create(title, bucket, objectKey string) (string, error) {
+func (m *MockVideoUsecase) Create(ctx context.Context, title, bucket, objectKey string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", title, bucket, objectKey)
+	ret := m.ctrl.Call(m, "Create", ctx, title, bucket, objectKey)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockVideoUsecaseMockRecorder) Create(title, bucket, objectKey any) *gomock.Call {
+func (mr *MockVideoUsecaseMockRecorder) Create(ctx, title, bucket, objectKey any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoUsecase)(nil).Create), title, bucket, objectKey)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockVideoUsecase)(nil).Create), ctx, title, bucket, objectKey)
 }
 
 // Get mocks base method.
-func (m *MockVideoUsecase) Get(id string) (*domain.Video, error) {
+func (m *MockVideoUsecase) Get(ctx context.Context, id string) (*domain.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", id)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
 	ret0, _ := ret[0].(*domain.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockVideoUsecaseMockRecorder) Get(id any) *gomock.Call {
+func (mr *MockVideoUsecaseMockRecorder) Get(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockVideoUsecase)(nil).Get), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockVideoUsecase)(nil).Get), ctx, id)
 }
 
 // List mocks base method.
-func (m *MockVideoUsecase) List(query string) ([]*domain.Video, error) {
+func (m *MockVideoUsecase) List(ctx context.Context, query string) ([]*domain.Video, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", query)
+	ret := m.ctrl.Call(m, "List", ctx, query)
 	ret0, _ := ret[0].([]*domain.Video)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockVideoUsecaseMockRecorder) List(query any) *gomock.Call {
+func (mr *MockVideoUsecaseMockRecorder) List(ctx, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockVideoUsecase)(nil).List), query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockVideoUsecase)(nil).List), ctx, query)
 }
 
 // UpdateStatus mocks base method.
-func (m *MockVideoUsecase) UpdateStatus(id, status string) error {
+func (m *MockVideoUsecase) UpdateStatus(ctx context.Context, id, status string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatus", id, status)
+	ret := m.ctrl.Call(m, "UpdateStatus", ctx, id, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStatus indicates an expected call of UpdateStatus.
-func (mr *MockVideoUsecaseMockRecorder) UpdateStatus(id, status any) *gomock.Call {
+func (mr *MockVideoUsecaseMockRecorder) UpdateStatus(ctx, id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockVideoUsecase)(nil).UpdateStatus), id, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockVideoUsecase)(nil).UpdateStatus), ctx, id, status)
 }

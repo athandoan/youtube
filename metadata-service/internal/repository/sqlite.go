@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -56,7 +57,7 @@ func NewSQLiteRepository(dbPath string) (domain.VideoRepository, error) {
 	return &sqliteRepo{DB: db}, nil
 }
 
-func (r *sqliteRepo) List(query string) ([]*domain.Video, error) {
+func (r *sqliteRepo) List(ctx context.Context, query string) ([]*domain.Video, error) {
 	sqlQuery := "SELECT id, title, status, created_at, bucket_name, object_key FROM videos WHERE status = 'ready'"
 	var rows *sql.Rows
 	var err error
@@ -68,9 +69,9 @@ func (r *sqliteRepo) List(query string) ([]*domain.Video, error) {
 			JOIN videos_fts f ON v.id = f.id 
 			WHERE v.status = 'ready' AND videos_fts MATCH ? 
 			ORDER BY rank`
-		rows, err = r.DB.Query(sqlQuery, query)
+		rows, err = r.DB.QueryContext(ctx, sqlQuery, query)
 	} else {
-		rows, err = r.DB.Query(sqlQuery)
+		rows, err = r.DB.QueryContext(ctx, sqlQuery)
 	}
 
 	if err != nil {
@@ -90,14 +91,14 @@ func (r *sqliteRepo) List(query string) ([]*domain.Video, error) {
 	return videos, nil
 }
 
-func (r *sqliteRepo) Create(v *domain.Video) error {
-	_, err := r.DB.Exec("INSERT INTO videos (id, title, bucket_name, object_key, status) VALUES (?, ?, ?, ?, 'pending')",
+func (r *sqliteRepo) Create(ctx context.Context, v *domain.Video) error {
+	_, err := r.DB.ExecContext(ctx, "INSERT INTO videos (id, title, bucket_name, object_key, status) VALUES (?, ?, ?, ?, 'pending')",
 		v.ID, v.Title, v.BucketName, v.ObjectKey)
 	return err
 }
 
-func (r *sqliteRepo) UpdateStatus(id string, status string) error {
-	res, err := r.DB.Exec("UPDATE videos SET status = ? WHERE id = ?", status, id)
+func (r *sqliteRepo) UpdateStatus(ctx context.Context, id string, status string) error {
+	res, err := r.DB.ExecContext(ctx, "UPDATE videos SET status = ? WHERE id = ?", status, id)
 	if err != nil {
 		return err
 	}
@@ -111,9 +112,9 @@ func (r *sqliteRepo) UpdateStatus(id string, status string) error {
 	return nil
 }
 
-func (r *sqliteRepo) Get(id string) (*domain.Video, error) {
+func (r *sqliteRepo) Get(ctx context.Context, id string) (*domain.Video, error) {
 	var v domain.Video
-	err := r.DB.QueryRow("SELECT id, title, status, created_at, bucket_name, object_key FROM videos WHERE id = ?", id).
+	err := r.DB.QueryRowContext(ctx, "SELECT id, title, status, created_at, bucket_name, object_key FROM videos WHERE id = ?", id).
 		Scan(&v.ID, &v.Title, &v.Status, &v.CreatedAt, &v.BucketName, &v.ObjectKey)
 	if err != nil {
 		if err == sql.ErrNoRows {
