@@ -1,8 +1,9 @@
-name: Release Please
+name: Release
 
 on:
   push:
-    branches: [main]
+    branches:
+      - 'release*'
 
 permissions:
   contents: write
@@ -10,13 +11,10 @@ permissions:
 
 jobs:
   release-please:
-    name: Release Please
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Release Please
-        uses: googleapis/release-please-action@v4
+      - uses: actions/checkout@v6
+      - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: go
